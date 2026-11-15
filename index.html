@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Strawberry Pedals ♡</title>
+<link rel="icon" href="./icons/icon-192.png">
+<meta name="theme-color" content="#F7B8D0">
+<meta name="description" content="Design dreamy rooms, dress up your character and collect strawberry-sweet furniture in Strawberry Pedals.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Strawberry Pedals">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--baby:#F7B8D0;--pastel:#FCE5EF;--lav:#E6D9FA;--cream:#FFF7EE;--mint:#CDEBDD;--butter:#FCE5A9;--rose:#D77CAB;--ink:#4a2f40}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;height:100dvh;overflow:hidden;font-family:"Nunito","Quicksand","Segoe UI",system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,#E9C7DC,#D9B4D0 60%,#CBB0E0)}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:linear-gradient(90deg,#E4B5D2,#D39CC0);box-shadow:0 4px 14px rgba(90,40,70,.18);position:relative;z-index:2}
+.logo{font-size:20px;font-weight:800;letter-spacing:.2px;background:linear-gradient(90deg,#FFFFFF,#FFE3F0);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 8px rgba(90,40,70,.25)}
+.logo small{display:block;font-size:11px;color:var(--ink);font-weight:600}
+.coins{background:linear-gradient(180deg,#FFF0BF,var(--butter));padding:6px 16px;border-radius:999px;font-weight:800;border:2px solid #fff;box-shadow:0 4px 12px rgba(90,40,70,.18)}
+main{display:grid;grid-template-columns:270px 1fr 280px;gap:12px;padding:12px;height:calc(100dvh - 60px)}
+.panel{background:linear-gradient(180deg,rgba(238,206,225,.96),rgba(224,182,207,.92));backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.4);border-radius:22px;padding:14px;box-shadow:0 6px 18px rgba(215,124,171,.18);overflow:auto;min-height:0}
+h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin:6px 0 12px;color:#8E3F6E}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+button{font:inherit;font-weight:700;font-size:13px;border:none;border-radius:999px;padding:8px 14px;background:linear-gradient(180deg,#F9C8DC,var(--baby));color:#fff;text-shadow:0 1px 2px rgba(120,50,90,.25);box-shadow:0 3px 8px rgba(120,50,90,.2);cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
+button:hover:not(:disabled){transform:translateY(-1px);background:linear-gradient(180deg,#E08DBA,var(--rose));box-shadow:0 6px 14px rgba(120,50,90,.25)}
+button:active:not(:disabled){transform:scale(.97);box-shadow:0 2px 4px rgba(120,50,90,.2)}
+button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.ghost{background:#fff;color:var(--rose);border:2px solid var(--baby)}
+button.on{background:var(--rose);color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{transition:transform .2s,box-shadow .2s;box-shadow:0 2px 6px rgba(120,50,90,.12);background:#F3DCE9;border-radius:16px;padding:10px;text-align:center;font-size:13px}
+.card b{display:block;margin-bottom:2px}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(120,50,90,.18)}
+.card .buy{margin-top:6px;width:100%}
+.muted{font-size:12px;opacity:.75}
+#stage{position:relative;min-height:0;border-radius:26px;overflow:hidden;background:var(--cream);box-shadow:0 14px 34px rgba(90,40,70,.28),inset 0 0 0 3px rgba(255,255,255,.5)}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:rgba(74,47,64,.6);color:#fff;padding:6px 14px;border-radius:999px;font-size:12px;white-space:nowrap;pointer-events:none}
+.sw{width:30px;height:30px;padding:0;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.15)}
+.sw{transition:transform .15s}
+.sw:hover{transform:scale(1.12)}
+.sw.active{outline:3px solid #8E3F6E;outline-offset:2px}
+.swrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+input{font:inherit;width:100%;padding:8px 12px;border-radius:12px;border:2px solid var(--baby);background:#F8E6F0;color:var(--ink);margin-bottom:10px}
+label{font-size:13px;font-weight:700;display:block;margin:6px 0 6px}
+input:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 3px rgba(215,124,171,.25)}
+.ov{position:fixed;inset:0;background:rgba(74,47,64,.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.ov[hidden]{display:none}
+.ovCard{width:min(1080px,100%);height:min(780px,100%);background:linear-gradient(180deg,#F6DCEB,#E9C6DB);border-radius:26px;box-shadow:0 24px 60px rgba(60,20,50,.4);display:flex;flex-direction:column;padding:16px;gap:12px;overflow:hidden}
+.ovHead{display:flex;justify-content:space-between;align-items:center}
+.ovBody{display:grid;grid-template-columns:1fr 380px;gap:14px;min-height:0;flex:1}
+.chStage{position:relative;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 30%,#FFF7EE,#F6D6E6);min-height:0}
+.chStage canvas{display:block;width:100%;height:100%;touch-action:none}
+.ovSide{overflow:auto;min-height:0;padding-right:4px}
+.opt{margin-bottom:6px}
+.opt .swrow{margin-bottom:0}
+.opt button{padding:6px 11px;font-size:12px}
+@media (max-width:820px){.ovCard{height:auto;max-height:100%;overflow:auto}.ovBody{grid-template-columns:1fr}.chStage{height:300px}}
+#toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-150%);background:linear-gradient(135deg,#E79AC4,#C0609A);color:#fff;padding:10px 20px;border-radius:999px;font-weight:800;box-shadow:0 10px 24px rgba(90,40,70,.3);transition:transform .35s;pointer-events:none;z-index:9}
+#toast.show{transform:translate(-50%,0)}
+.panel::-webkit-scrollbar{width:8px}
+.panel::-webkit-scrollbar-thumb{background:#E79AC4;border-radius:8px}
+@media (max-width:820px){
+ body{height:auto;overflow:auto}
+ main{grid-template-columns:1fr;height:auto}
+ #stage{order:-1;height:58dvh}
+}
+
+input[type=range]{width:100%;accent-color:#D77CAB;margin:4px 0 8px}
+input[type=color]{width:44px;height:32px;border:none;background:none;padding:0;cursor:pointer;border-radius:10px}
+#chTabs button{padding:6px 10px;font-size:12px}
+
+/* ---------- Polish & motion ---------- */
+html{scroll-behavior:smooth}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;user-select:none}
+input,.hint{user-select:text}
+::selection{background:#F7B8D0;color:#4A2F40}
+header{animation:drop .6s cubic-bezier(.2,.8,.2,1) both}
+main>*{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+main>*:nth-child(2){animation-delay:.08s}
+main>*:nth-child(3){animation-delay:.16s}
+@keyframes drop{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.panel{transition:box-shadow .35s ease}
+.panel:hover{box-shadow:0 10px 26px rgba(215,124,171,.26)}
+button{transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease,background .3s ease,color .2s ease,opacity .2s ease}
+.card{transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease}
+.sw{transition:transform .2s cubic-bezier(.2,.8,.2,1),outline .15s ease}
+#stage{transition:box-shadow .4s ease}
+.hint{transition:opacity .6s ease}
+.coins{transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+input[type=range]{transition:filter .2s ease}
+.ov:not([hidden]){animation:fade .25s ease both}
+.ov:not([hidden]) .ovCard{animation:pop .4s cubic-bezier(.2,.9,.3,1.05) both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ---------- Home & accounts ---------- */
+body:not(.in-app){height:auto;min-height:100vh;overflow-x:hidden;overflow-y:auto}
+body:not(.in-app) header,body:not(.in-app) main{display:none}
+body.in-app #home{display:none}
+#home{min-height:100vh;padding:0 clamp(18px,5vw,64px) 40px;background:radial-gradient(circle at 15% 10%,#FFF7EE 0,transparent 40%),radial-gradient(circle at 90% 30%,#FCE5EF 0,transparent 45%),linear-gradient(170deg,#FCE5EF,#E6D9FA)}
+#home .logo{background:none;color:#C0609A;-webkit-text-fill-color:#C0609A;text-shadow:none;font-size:22px}
+.hNav{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;padding:24px 0 40px}
+.kicker{font-weight:800;font-size:13px;color:#8E3F6E;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px}
+.heroText h1{font-size:clamp(38px,6vw,68px);line-height:1.05;margin:0 0 16px;color:#4A2F40;letter-spacing:-.5px}
+.heroText h1 span{background:linear-gradient(90deg,#E79AC4,#C0609A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:18px;line-height:1.6;max-width:520px;margin:0 0 26px}
+.big{padding:14px 26px;font-size:16px}
+.heroSvg{width:100%;max-width:480px;display:block;margin:0 auto;filter:drop-shadow(0 20px 30px rgba(120,50,90,.25))}
+.bob{animation:bob 4s ease-in-out infinite}
+.tw{animation:tw 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes tw{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:10px 0 30px}
+.feat{background:rgba(255,255,255,.7);border-radius:24px;padding:24px;box-shadow:0 10px 26px rgba(215,124,171,.2);transition:transform .3s,box-shadow .3s}
+.feat:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(215,124,171,.3)}
+.feat span{font-size:28px;color:#D77CAB}
+.feat h3{margin:8px 0 6px;color:#8E3F6E;font-size:19px}
+.feat p{margin:0;line-height:1.55;font-size:15px}
+.soon{background:rgba(255,255,255,.5);border:2px dashed #E79AC4;border-radius:22px;padding:18px 22px;text-align:center}
+.soon h3{margin:0 0 6px;color:#8E3F6E}
+.soon p{margin:0;font-weight:700}
+.hFoot{text-align:center;font-size:13px;margin-top:30px;opacity:.85;line-height:1.6}
+#whoami{font-weight:700;font-size:13px;color:#4A2F40}
+.authCard{position:relative;width:min(420px,100%);background:linear-gradient(180deg,#FCE5EF,#E6D9FA);border-radius:26px;padding:24px;box-shadow:0 24px 60px rgba(60,20,50,.4);max-height:100%;overflow:auto}
+.authX{position:absolute;right:14px;top:14px;padding:4px 10px}
+.authTabs{margin-bottom:12px}
+.authForm h2{font-size:20px;text-transform:none;letter-spacing:0;color:#8E3F6E;margin:4px 0 10px}
+.authForm[hidden]{display:none}
+.authForm .big{width:100%;margin-top:8px}
+.check{display:flex;gap:8px;align-items:center;font-weight:700;font-size:13px;margin:10px 0}
+.check input{width:auto;margin:0}
+.link{background:none;box-shadow:none;color:#8E3F6E;text-decoration:underline;padding:0;font-size:13px}
+.link:hover:not(:disabled){background:none;box-shadow:none;transform:none;color:#D77CAB}
+.authMsg{min-height:20px;font-size:13px;font-weight:700;margin:10px 0 0;text-align:center}
+.errMsg{color:#B03A6E}.okMsg{color:#3E8A5A}
+@media (max-width:820px){.hero{grid-template-columns:1fr;text-align:center}.lead{margin-left:auto;margin-right:auto}.heroText .row{justify-content:center}.feats{grid-template-columns:1fr}}
+.logoImg{height:46px;width:auto;display:block;border-radius:12px;filter:drop-shadow(0 3px 6px rgba(120,50,90,.25));transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.logoImg:hover{transform:scale(1.04) rotate(-1deg)}
+.homeLogo{height:60px}
+
+/* ---------- Responsive layout: desktop, tablet and phone ---------- */
+header{flex-wrap:wrap;gap:8px 12px;padding-top:max(10px,env(safe-area-inset-top))}
+@media (max-width:1099px){
+  body:not(.in-app){overflow-x:hidden}
+  body.in-app{height:auto;min-height:100dvh;overflow-x:hidden;overflow-y:auto}
+  main{grid-template-columns:1fr 1fr;height:auto;padding:10px}
+  #stage{grid-column:1/-1;order:-1;height:58dvh;min-height:340px}
+  .panel{overflow:visible}
+  .ovBody{grid-template-columns:1fr 320px}
+}
+@media (max-width:767px){
+  main{grid-template-columns:1fr;gap:10px;padding:8px}
+  #stage{height:52dvh;min-height:300px;border-radius:20px}
+  .panel{border-radius:18px;padding:12px}
+  .grid{grid-template-columns:1fr 1fr}
+  .logoImg{height:38px}
+  #whoami{display:none}
+  .coins{padding:5px 12px;font-size:13px}
+  #chOpen{padding:7px 10px;font-size:12px}
+  .hint{font-size:11px;bottom:8px;max-width:92%;white-space:normal;text-align:center}
+  .ov{padding:8px;align-items:flex-end}
+  .ovCard{height:94dvh;border-radius:22px 22px 0 0;padding:12px}
+  .ovBody{grid-template-columns:1fr}
+  .chStage{height:34dvh;min-height:220px}
+  .ovSide{overflow:visible}
+  .authCard{width:100%;border-radius:22px 22px 0 0;padding:18px;max-height:92dvh}
+  .homeLogo{height:44px}
+  .hNav{flex-wrap:wrap;gap:10px}
+  .hero{gap:18px}
+  .heroText h1{font-size:40px}
+  .lead{font-size:16px}
+  .feat{padding:18px}
+}
+@media (max-height:520px) and (min-width:600px){
+  #stage{height:78dvh}
+}
+@media (pointer:coarse){
+  button{min-height:40px}
+  .sw{width:36px;height:36px}
+  input[type=range]{height:28px}
+  .hint{display:none}
+  button:hover:not(:disabled){transform:none}
+}
+</style>
+</head>
+<body>
+<div id="home">
+ <nav class="hNav">
+  <img class="logoImg homeLogo" src="strawberry-pedals-logo.png" alt="Strawberry Pedals logo">
+  <div class="row"><button id="installApp" class="ghost" type="button">Install app</button><button id="hLogin" class="ghost">Log in</button><button id="hSignup">Sign up free</button></div>
+ </nav>
+ <section class="hero">
+  <div class="heroText">
+   <p class="kicker">✿ a cute pastel decorating world ✿</p>
+   <h1>A little world<br>made by <span>you</span> ♡</h1>
+   <p class="lead">Design dreamy rooms, dress up your own character and collect strawberry-sweet furniture, all in one cosy place.</p>
+   <div class="row">
+    <button id="heroSignup" class="big">Start your world</button>
+    <button id="heroPlay" class="ghost big">Try the demo</button>
+   </div>
+  </div>
+  <div class="heroArt">
+   <svg viewBox="0 0 400 360" class="heroSvg" aria-hidden="true">
+    <defs><linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCE5EF"/><stop offset="1" stop-color="#E6D9FA"/></linearGradient></defs>
+    <rect x="20" y="30" width="360" height="300" rx="36" fill="url(#wallG)" stroke="#fff" stroke-width="8"/>
+    <rect x="28" y="262" width="344" height="60" rx="18" fill="#F7B8D0" opacity=".55"/>
+    <rect x="250" y="62" width="96" height="96" rx="22" fill="#CDEBDD" stroke="#fff" stroke-width="6"/>
+    <path d="M298 62 V158 M250 110 H346" stroke="#fff" stroke-width="5"/>
+    <g class="bob" transform="translate(150 150)">
+     <ellipse cx="-22" cy="-70" rx="14" ry="42" fill="#FFF7EE" stroke="#F7B8D0" stroke-width="3"/>
+     <ellipse cx="22" cy="-70" rx="14" ry="42" fill="#FFF7EE" stroke="#F7B8D0" stroke-width="3"/>
+     <ellipse cx="0" cy="0" rx="78" ry="70" fill="#FFF7EE" stroke="#F7B8D0" stroke-width="3"/>
+     <path d="M30 -58 L48 -68 L48 -48 Z M30 -58 L12 -68 L12 -48 Z" fill="#D77CAB"/>
+     <circle cx="30" cy="-58" r="5" fill="#D77CAB"/>
+     <circle cx="-30" cy="-6" r="9" fill="#2B1D2E"/><circle cx="30" cy="-6" r="9" fill="#2B1D2E"/>
+     <circle cx="-26" cy="-9" r="3" fill="#fff"/><circle cx="34" cy="-9" r="3" fill="#fff"/>
+     <ellipse cx="-44" cy="16" rx="12" ry="7" fill="#F7A1C4" opacity=".85"/>
+     <ellipse cx="44" cy="16" rx="12" ry="7" fill="#F7A1C4" opacity=".85"/>
+     <path d="M-8 18 Q0 28 8 18" stroke="#8E3F6E" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(322 272)">
+     <path d="M0 -26 C18 -26 26 -6 0 24 C-26 -6 -18 -26 0 -26Z" fill="#E4577F"/>
+     <path d="M-16 -24 L0 -14 L16 -24 L8 -30 L0 -22 L-8 -30Z" fill="#8FD19E"/>
+     <circle cx="-8" cy="-6" r="1.8" fill="#fff"/><circle cx="6" cy="-2" r="1.8" fill="#fff"/><circle cx="-2" cy="8" r="1.8" fill="#fff"/>
+    </g>
+    <path class="tw" d="M70 110 Q70 130 90 130 Q70 130 70 150 Q70 130 50 130 Q70 130 70 110Z" fill="#FCE5A9"/>
+    <path class="tw" d="M340 180 Q340 196 356 196 Q340 196 340 212 Q340 196 324 196 Q340 196 340 180Z" fill="#FCE5A9" style="animation-delay:.9s"/>
+    <path class="tw" d="M60 230 Q60 242 72 242 Q60 242 60 254 Q60 242 48 242 Q60 242 60 230Z" fill="#fff" style="animation-delay:1.6s"/>
+   </svg>
+  </div>
+ </section>
+ <section class="feats">
+  <article class="feat"><span>✿</span><h3>Design rooms</h3><p>Drag, turn and decorate a 3D room with strawberry wallpaper, cloud rugs and cosy furniture.</p></article>
+  <article class="feat"><span>♡</span><h3>Create your character</h3><p>Mix and match hair, outfits, accessories and expressions in the Character Studio.</p></article>
+  <article class="feat"><span>✦</span><h3>Save &amp; share</h3><p>Keep your rooms and characters as files you can open again on any device.</p></article>
+ </section>
+ <section class="soon"><h3>Coming soon ✿</h3><p>Garden designer · Community gallery · Seasonal events</p></section>
+ <footer class="hFoot">Strawberry Pedals · a little world made by you ♡<br>In this demo, accounts are saved on this device only.</footer>
+</div>
+<div id="authOv" class="ov" hidden>
+ <div class="authCard">
+  <button id="authClose" class="ghost authX">✕</button>
+  <div class="row authTabs"><button id="tabSu" class="on">Sign up</button><button id="tabLi" class="ghost">Log in</button></div>
+  <div id="suForm" class="authForm">
+   <h2>Make your account ♡</h2>
+   <label for="suUser">Username</label><input id="suUser" maxlength="16" autocomplete="username">
+   <label for="suEmail">Email</label><input id="suEmail" type="email" autocomplete="email">
+   <label for="suPass">Password (8+ characters)</label><input id="suPass" type="password" autocomplete="new-password">
+   <label for="suPass2">Confirm password</label><input id="suPass2" type="password" autocomplete="new-password">
+   <label class="check"><input type="checkbox" id="suAge"> I'm 13 or older</label>
+   <button id="suBtn" class="big">Create my account</button>
+   <p class="muted">Already have an account? <button class="link" id="goLogin">Log in</button></p>
+  </div>
+  <div id="liForm" class="authForm" hidden>
+   <h2>Welcome back ♡</h2>
+   <label for="liUser">Username or email</label><input id="liUser" autocomplete="username">
+   <label for="liPass">Password</label><input id="liPass" type="password" autocomplete="current-password">
+   <button id="liBtn" class="big">Log in</button>
+   <p class="muted">New here? <button class="link" id="goSignup">Sign up</button></p>
+  </div>
+  <p id="authMsg" class="authMsg"></p>
+ </div>
+</div>
+
+<header>
+ <img class="logoImg" src="strawberry-pedals-logo.png" alt="Strawberry Pedals logo">
+ <div style="display:flex;gap:10px;align-items:center"><span id="whoami"></span><button id="logout" class="ghost">Log out</button><button id="chOpen" class="ghost">Character studio ♡</button><div class="coins">✿ <span id="coinVal">0</span> Petal Coins</div></div>
+</header>
+
+<main>
+ <section class="panel">
+  <h2>Furniture Shop</h2>
+  <div class="row" id="tabs"></div>
+  <div class="grid" id="shop"></div>
+ </section>
+
+ <section id="stage"><div class="hint">Drag furniture to move · drag the floor to orbit · scroll to zoom</div></section>
+
+ <section class="panel">
+  <h2>Selected</h2>
+  <div id="sel"></div>
+  <div class="row">
+   <button id="rotBtn" class="ghost">Rotate (R)</button>
+   <button id="delBtn" class="ghost">Sell (Del)</button>
+  </div>
+
+  <h2>Room</h2>
+  <label>Walls</label>
+  <div class="swrow" id="wallSw"></div>
+  <label>Floor</label>
+  <div class="swrow" id="floorSw"></div>
+
+  <h2>Tools</h2>
+  <div class="row">
+   <button id="undoBtn" class="ghost">Undo</button>
+   <button id="redoBtn" class="ghost">Redo</button>
+  </div>
+  <label for="roomName">Room name</label>
+  <input id="roomName" value="My Dream Bedroom" maxlength="40">
+  <div class="row">
+   <button id="saveBtn">Save room file</button>
+   <button id="loadBtn" class="ghost">Open room file</button>
+   <input type="file" id="file" accept=".json,application/json" hidden>
+  </div>
+  <div class="row"><button id="resetBtn" class="ghost">Clear room</button></div>
+  <p class="muted">Furniture snaps to a grid and can't overlap. Rooms save as files you can reopen on any device. Petal Coins reset when the page is refreshed.</p>
+ </section>
+</main>
+<div id="chOv" class="ov" hidden>
+ <div class="ovCard">
+  <div class="ovHead"><h2 style="margin:0">Character Studio ♡</h2><button id="chClose" class="ghost">Close ✕</button></div>
+  <div class="ovBody">
+   <div id="chStage" class="chStage"></div>
+   <div class="ovSide">
+    <div class="row" id="chTabs"></div>
+    <div id="chOpts"></div>
+    <h2>Looks</h2>
+    <div class="row" id="slots"></div>
+    <div class="row"><button id="slotSave">Save to selected look</button><button id="slotWear" class="ghost">Wear look</button></div>
+    <div class="row"><button id="rndBtn" class="ghost">Randomise</button><button id="rstBtn" class="ghost">Reset</button></div>
+    <label for="chName">Character name</label>
+    <input id="chName" maxlength="20">
+    <div class="row"><button id="chSave">Save character file</button><button id="chLoad" class="ghost">Open character file</button><input type="file" id="chFile" accept=".json,application/json" hidden></div>
+   </div>
+  </div>
+ </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const snap=v=>Math.round(v*2)/2;
+const HALF=6;
+/* ---------- Procedural textures (drawn in code, no image files) ---------- */
+const TEXCACHE={};
+function rnd(seed){let s=seed;return()=>(s=(s*16807)%2147483647)/2147483647;}
+function canvasTex(key,draw,rep){
+  if(!TEXCACHE[key]){
+    const cv=document.createElement('canvas');cv.width=cv.height=256;
+    draw(cv.getContext('2d'),256);
+    const t=new THREE.CanvasTexture(cv);
+    t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;t.repeat.set(rep,rep);
+    TEXCACHE[key]=t;
+  }
+  return TEXCACHE[key];
+}
+const PATTERNS={
+  fabric(x,S){const r=rnd(7);x.fillStyle='#fff';x.fillRect(0,0,S,S);
+    for(let i=0;i<4000;i++){const v=(200+r()*55)|0;x.fillStyle=`rgba(${v},${v},${v},.5)`;x.fillRect(r()*S,r()*S,2,1);}
+    x.strokeStyle='rgba(120,90,110,.07)';x.lineWidth=1;
+    for(let i=0;i<S;i+=4){x.beginPath();x.moveTo(i,0);x.lineTo(i,S);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(S,i);x.stroke();}
+  },
+  planks(x,S){const r=rnd(3);x.fillStyle='#fff';x.fillRect(0,0,S,S);
+    const pw=S/4;
+    for(let p=0;p<4;p++){
+      x.fillStyle=`rgba(0,0,0,${r()*.08})`;x.fillRect(p*pw,0,pw,S);
+      for(let i=0;i<30;i++){x.strokeStyle=`rgba(110,70,35,${.04+r()*.09})`;x.lineWidth=.6+r()*1.3;
+        const gx=p*pw+r()*pw;x.beginPath();x.moveTo(gx,0);
+        x.bezierCurveTo(gx+r()*6-3,S*.33,gx+r()*6-3,S*.66,gx+r()*4-2,S);x.stroke();}
+      x.fillStyle='rgba(60,40,20,.3)';x.fillRect(p*pw,0,2,S);
+      x.fillRect(p*pw,r()*S,pw,2);
+    }
+  },
+  wallpaper(x,S){x.fillStyle='#fff';x.fillRect(0,0,S,S);
+    x.fillStyle='rgba(0,0,0,.09)';
+    for(let row=0;row<4;row++)for(let col=0;col<4;col++){
+      const cx=col*S/4+(row%2)*S/8+S/16,cy=row*S/4+S/8,k=S/40;
+      x.beginPath();x.moveTo(cx,cy-k);x.bezierCurveTo(cx+k*1.1,cy-k*1.2,cx+k*1.1,cy+k*.6,cx,cy+k*1.4);
+      x.bezierCurveTo(cx-k*1.1,cy+k*.6,cx-k*1.1,cy-k*1.2,cx,cy-k);x.fill();
+    }
+    x.fillStyle='rgba(255,255,255,.6)';
+    for(let row=0;row<4;row++)for(let col=0;col<4;col++){
+      x.beginPath();x.arc(col*S/4+(row%2)*S/8+S/16-1.5,row*S/4+S/8-1.5,1.3,0,7);x.fill();
+    }
+  }
+};
+function mat(c,kind='fabric',rep=1){
+  return new THREE.MeshStandardMaterial({color:c,map:canvasTex(kind+rep,PATTERNS[kind],rep),roughness:.85,metalness:0});
+}
+function part(g,geo,c,x,y,z){const m=new THREE.Mesh(geo,mat(c));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;g.add(m);return m;}
+const bx=(g,w,h,d,c,x=0,y=0,z=0)=>part(g,new THREE.BoxGeometry(w,h,d),c,x,y+h/2,z);
+const cy=(g,rt,rb,h,c,x=0,y=0,z=0)=>part(g,new THREE.CylinderGeometry(rt,rb,h,24),c,x,y+h/2,z);
+const sp=(g,r,c,x=0,y=0,z=0)=>part(g,new THREE.SphereGeometry(r,20,14),c,x,y,z);
+
+/* ---------- Catalogue (original designs) ---------- */
+const CAT={
+ bed:{n:'Strawberry Bed',c:'Bedroom',p:120,w:2,d:3,b(g){
+   bx(g,2,.5,3,'#F7B8D0');bx(g,1.8,.3,2.8,'#FFFFFF',0,.5,0);
+   bx(g,2,1.1,.25,'#D77CAB',0,0,-1.375);bx(g,1.2,.22,.6,'#E6D9FA',0,.8,-1);
+   bx(g,1.8,.08,1.5,'#FCE5A9',0,.8,.55);}},
+ wardrobe:{n:'Dream Wardrobe',c:'Bedroom',p:180,w:1.8,d:.8,b(g){
+   bx(g,1.8,2.6,.8,'#CDEBDD');bx(g,1.8,.15,.8,'#F7B8D0',0,2.6,0);
+   bx(g,.03,2.3,.03,'#FFFFFF',0,.15,.41);
+   sp(g,.06,'#D77CAB',-.2,1.3,.42);sp(g,.06,'#D77CAB',.2,1.3,.42);}},
+ sofa:{n:'Cloud Sofa',c:'Living',p:150,w:2.4,d:1,b(g){
+   bx(g,2.4,.45,1,'#E6D9FA');bx(g,2.4,.75,.25,'#E6D9FA',0,0,-.375);
+   bx(g,.25,.6,1,'#E6D9FA',-1.075,0,0);bx(g,.25,.6,1,'#E6D9FA',1.075,0,0);
+   bx(g,2,.2,.75,'#FFF7EE',0,.45,.08);}},
+ table:{n:'Berry Coffee Table',c:'Living',p:60,w:1.4,d:1.4,b(g){
+   bx(g,1.4,.12,1.4,'#FCE5A9',0,.6,0);
+   for(const[x,z]of[[-.6,-.6],[.6,-.6],[-.6,.6],[.6,.6]])bx(g,.12,.6,.12,'#D77CAB',x,0,z);
+   sp(g,.1,'#CDEBDD',0,.72,0);}},
+ bookshelf:{n:'Bunny Bookshelf',c:'Living',p:90,w:1.6,d:.5,b(g){
+   bx(g,.08,2,.5,'#FCE5A9',-.76,0,0);bx(g,.08,2,.5,'#FCE5A9',.76,0,0);
+   bx(g,1.6,2,.05,'#FCE5A9',0,0,-.225);
+   for(const y of[.4,1,1.6])bx(g,1.44,.06,.45,'#FFFFFF',0,y,.02);
+   bx(g,.16,.34,.3,'#D77CAB',-.5,.46,.02);bx(g,.12,.4,.3,'#E6D9FA',-.3,.46,.02);
+   bx(g,.16,.34,.3,'#CDEBDD',.45,1.06,.02);}},
+ rug:{n:'Cloud Rug',c:'Living',p:35,w:2,d:2,b(g){cy(g,1,1,.04,'#E6D9FA',0,.01,0);}},
+ plant:{n:'Lavender Plant',c:'Decor',p:40,w:.8,d:.8,b(g){
+   cy(g,.22,.16,.4,'#F7B8D0');sp(g,.4,'#CDEBDD',0,.75,0);
+   sp(g,.08,'#E6D9FA',.2,1,.1);sp(g,.08,'#FFFFFF',-.18,.95,-.12);sp(g,.07,'#E6D9FA',.05,1.2,-.2);}},
+ vase:{n:'Blossom Vase',c:'Decor',p:25,w:.4,d:.4,b(g){
+   cy(g,.14,.1,.4,'#CDEBDD');sp(g,.12,'#F7B8D0',0,.5,0);
+   sp(g,.12,'#FCE5A9',.1,.6,.05);sp(g,.1,'#FFFFFF',-.08,.62,-.05);}},
+ plushie:{n:'Bunbun Plushie',c:'Decor',p:30,w:.6,d:.6,b(g){
+   sp(g,.3,'#FFE9D6',0,.3,0);cy(g,.07,.07,.4,'#FFE9D6',-.12,.5,0);
+   cy(g,.07,.07,.4,'#FFE9D6',.12,.5,0);sp(g,.09,'#F7B8D0',0,.55,.27);}},
+ lamp:{n:'Moon Lamp',c:'Lighting',p:55,w:.6,d:.6,b(g){
+   cy(g,.25,.25,.08,'#D77CAB');cy(g,.04,.04,1.3,'#D77CAB',0,.08,0);
+   cy(g,.2,.32,.4,'#FCE5A9',0,1.3,0);}},
+ star:{n:'Star Night Light',c:'Lighting',p:20,w:.4,d:.4,b(g){
+   cy(g,.18,.22,.1,'#D77CAB');sp(g,.22,'#FCE5A9',0,.34,0);}}
+};
+const fp=it=>{const c=CAT[it.type];return it.rot%2?{w:c.d,d:c.w}:{w:c.w,d:c.d};};
+
+/* ---------- State & history ---------- */
+let state={coins:999999999999,room:{wall:'#FCE5EF',floor:'#E8C49C'},
+  items:[{id:1,type:'bed',x:-3,z:-4.2,rot:0},{id:2,type:'rug',x:0,z:0,rot:0}]};
+let selected=null, drag=null, ringT=null;
+const past=[],future=[],pops=[];
+const snapshot=()=>JSON.stringify(state);
+function pushHistory(s){past.push(s);if(past.length>100)past.shift();future.length=0;}
+const cur=()=>state.items.find(i=>i.id===selected)||null;
+const nid=()=>Math.max(0,...state.items.map(i=>i.id))+1;
+function fit(it,x,z){const f=fp(it);return{x:clamp(snap(x),-HALF+f.w/2,HALF-f.w/2),z:clamp(snap(z),-HALF+f.d/2,HALF-f.d/2)};}
+function collides(c){return state.items.some(o=>{if(o.id===c.id)return false;const a=fp(c),b=fp(o);
+  return Math.abs(c.x-o.x)<(a.w+b.w)/2-.01&&Math.abs(c.z-o.z)<(a.d+b.d)/2-.01;});}
+
+/* ---------- Three.js scene ---------- */
+const stage=$('stage');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+stage.prepend(renderer.domElement);
+const cv=renderer.domElement;
+const scene=new THREE.Scene();scene.background=new THREE.Color('#E9C7DC');
+const camera=new THREE.PerspectiveCamera(45,1,.1,100);
+scene.add(new THREE.HemisphereLight(0xffffff,0xFCE5EF,.5));
+const sun=new THREE.DirectionalLight(0xffffff,.55);
+sun.position.set(5,12,8);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-9,right:9,top:9,bottom:-9,far:40});
+sun.shadow.camera.updateProjectionMatrix();
+scene.add(sun);
+
+const floorMat=mat('#ffffff','planks',3),wallMat=mat('#ffffff','wallpaper',3);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(HALF*2,HALF*2),floorMat);
+floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+const wallB=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+.3,5,.3),wallMat);wallB.position.set(0,2.5,-HALF-.15);
+const wallL=new THREE.Mesh(new THREE.BoxGeometry(.3,5,HALF*2),wallMat);wallL.position.set(-HALF-.15,2.5,0);
+wallB.receiveShadow=wallL.receiveShadow=true;scene.add(wallB,wallL);
+const skB=new THREE.Mesh(new THREE.BoxGeometry(HALF*2,.3,.06),mat('#FFF7EE'));skB.position.set(0,.15,-HALF+.03);
+const skL=new THREE.Mesh(new THREE.BoxGeometry(.06,.3,HALF*2),mat('#FFF7EE'));skL.position.set(-HALF+.03,.15,0);
+skB.receiveShadow=skL.receiveShadow=skB.castShadow=skL.castShadow=true;scene.add(skB,skL);
+
+const furn=new THREE.Group();scene.add(furn);
+const ring=new THREE.Mesh(new THREE.RingGeometry(1,1.1,48),
+  new THREE.MeshBasicMaterial({color:0xD77CAB,side:THREE.DoubleSide,transparent:true}));
+ring.rotation.x=-Math.PI/2;ring.visible=false;scene.add(ring);
+
+const orbit={th:.7,ph:1.0,r:17,t:new THREE.Vector3(0,1,0)};
+function placeCam(){
+  camera.position.set(orbit.t.x+orbit.r*Math.sin(orbit.ph)*Math.cos(orbit.th),
+    orbit.t.y+orbit.r*Math.cos(orbit.ph),
+    orbit.t.z+orbit.r*Math.sin(orbit.ph)*Math.sin(orbit.th));
+  camera.lookAt(orbit.t);
+}
+new ResizeObserver(()=>{const w=stage.clientWidth,h=stage.clientHeight;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}).observe(stage);
+
+/* ---------- Rendering helpers ---------- */
+function makeItem(it){const g=new THREE.Group();CAT[it.type].b(g);
+  g.userData.uid=it.id;g.position.set(it.x,0,it.z);g.rotation.y=it.rot*Math.PI/2;return g;}
+function syncRing(){const it=cur();ring.visible=!!it;
+  if(it){const f=fp(it);ringT=new THREE.Vector3(it.x,.03,it.z);ring.scale.set(f.w/2+.25,f.d/2+.25,1);}}
+function rebuild(){
+  while(furn.children.length)furn.remove(furn.children[0]);
+  state.items.forEach(it=>furn.add(makeItem(it)));
+  wallMat.color.set(state.room.wall);floorMat.color.set(state.room.floor);
+  syncRing();updateUI();
+}
+function select(id){selected=id;syncRing();updateUI();}
+
+/* ---------- Pointer controls (mouse + touch) ---------- */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),hit=new THREE.Vector3();
+function aim(e){const r=cv.getBoundingClientRect();
+  ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);}
+
+cv.addEventListener('pointerdown',e=>{
+  aim(e);cv.setPointerCapture(e.pointerId);
+  const h=ray.intersectObjects(furn.children,true)[0];
+  let g=h&&h.object;while(g&&g.userData.uid===undefined)g=g.parent;
+  const it=g&&state.items.find(i=>i.id===g.userData.uid);
+  if(it){select(it.id);ray.ray.intersectPlane(plane,hit);
+    drag={item:it,dx:it.x-hit.x,dz:it.z-hit.z,before:snapshot(),moved:false};}
+  else{select(null);drag={orbit:true,x:e.clientX,y:e.clientY};}
+});
+cv.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  if(drag.orbit){
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+    orbit.th-=dx*.008;orbit.ph=clamp(orbit.ph-dy*.006,.3,1.4);placeCam();return;}
+  aim(e);if(!ray.ray.intersectPlane(plane,hit))return;
+  const it=drag.item,p=fit(it,hit.x+drag.dx,hit.z+drag.dz);
+  if((p.x!==it.x||p.z!==it.z)&&!collides({...it,...p})){
+    it.x=p.x;it.z=p.z;drag.moved=true;
+    const g=furn.children.find(c=>c.userData.uid===it.id);if(g)g.position.set(it.x,0,it.z);
+    syncRing();
+  }
+});
+const endDrag=()=>{
+  if(drag&&drag.item&&drag.moved)pushHistory(drag.before);
+  drag=null;updateUI();
+};
+cv.addEventListener('pointerup',endDrag);
+cv.addEventListener('pointercancel',endDrag);
+cv.addEventListener('wheel',e=>{e.preventDefault();orbit.rT=clamp((orbit.rT??orbit.r)+e.deltaY*.01,7,22);},{passive:false});
+
+/* ---------- Actions ---------- */
+function buy(type){
+  const c=CAT[type];
+  if(state.coins<c.p)return toast('Not enough Petal Coins yet ♡');
+  const probe={id:-1,type,rot:0};let spot=null;
+  for(let z=-HALF+1;z<=HALF-1&&!spot;z+=.5)
+    for(let x=-HALF+1;x<=HALF-1&&!spot;x+=.5){
+      const p=fit(probe,x,z);if(!collides({...probe,...p}))spot={x:p.x,z:p.z};}
+  if(!spot)return toast('The room is full. Try selling something ♡');
+  const before=snapshot();
+  state.items.push({id:nid(),type,x:spot.x,z:spot.z,rot:0});
+  pushHistory(before);rebuild();
+  const it=state.items[state.items.length-1];select(it.id);
+  const g=furn.children.find(x=>x.userData.uid===it.id);
+  if(g){g.scale.setScalar(.01);pops.push({g,t:0});}
+  toast(`Placed ${c.n} ✿`);
+}
+function rotateSel(){
+  const it=cur();if(!it)return;
+  const cand={...it,rot:(it.rot+1)%4};Object.assign(cand,fit(cand,it.x,it.z));
+  if(collides(cand))return toast('No space to turn that way');
+  const before=snapshot();Object.assign(it,cand);pushHistory(before);rebuild();
+}
+function removeSel(){
+  const it=cur();if(!it)return;
+  const before=snapshot();
+  state.coins+=Math.floor(CAT[it.type].p/2);
+  state.items=state.items.filter(i=>i!==it);
+  pushHistory(before);select(null);rebuild();
+  toast('Sold for half the price ♡');
+}
+function setRoom(k,v){
+  if(state.room[k]===v)return;
+  const before=snapshot();state.room[k]=v;pushHistory(before);rebuild();
+}
+function restore(s){state=JSON.parse(s);if(!cur())selected=null;rebuild();}
+function undo(){if(!past.length)return;future.push(snapshot());restore(past.pop());}
+function redo(){if(!future.length)return;past.push(snapshot());restore(future.pop());}
+function clearRoom(){
+  if(!state.items.length)return;
+  const before=snapshot();state.items=[];pushHistory(before);select(null);rebuild();
+  toast('Room cleared. Fresh start ♡');
+}
+
+/* ---------- Save / open room files ---------- */
+$('saveBtn').onclick=()=>{
+  const name=$('roomName').value.trim()||'My Room';
+  const data={app:'Strawberry Pedals',version:1,name,room:state.room,
+    items:state.items.map(({type,x,z,rot})=>({type,x,z,rot}))};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download=name.replace(/[^\w ]+/g,'').trim().replace(/\s+/g,'_')+'.strawberrypedals.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast('Room saved ♡');
+};
+const isHex=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c);
+$('loadBtn').onclick=()=>$('file').click();
+$('file').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!Array.isArray(d.items))throw new Error('bad file');
+    const before=snapshot();
+    state.items=d.items.filter(i=>CAT[i.type]).map((i,n)=>{
+      const r=((+i.rot||0)%4+4)%4;const p=fit({type:i.type,rot:r},+i.x||0,+i.z||0);
+      return{id:n+1,type:i.type,x:p.x,z:p.z,rot:r};});
+    if(d.room){if(isHex(d.room.wall))state.room.wall=d.room.wall;if(isHex(d.room.floor))state.room.floor=d.room.floor;}
+    if(d.name)$('roomName').value=String(d.name).slice(0,40);
+    pushHistory(before);select(null);rebuild();toast('Room opened ♡');
+  }catch(_){toast('That file didn\u2019t open ♡');}
+};
+
+/* ---------- UI ---------- */
+const CATS=['All','Bedroom','Living','Decor','Lighting'];let tab='All';
+const WALLS=[['#FCE5EF','Pastel pink'],['#E6D9FA','Lavender'],['#CDEBDD','Mint'],['#FFF7EE','Cream'],['#F7B8D0','Baby pink'],['#FCE5A9','Butter']];
+const FLOORS=[['#E8C49C','Honey wood'],['#F5D0E0','Pink tiles'],['#E6D9FA','Lavender'],['#CDEBDD','Mint'],['#FFF7EE','Cream']];
+function swatchRow(id,list,key){const el=$(id);
+  list.forEach(([c,n])=>{const b=document.createElement('button');b.className='sw';
+    b.style.background=c;b.title=n;b.dataset.c=c;b.onclick=()=>setRoom(key,c);el.appendChild(b);});}
+swatchRow('wallSw',WALLS,'wall');swatchRow('floorSw',FLOORS,'floor');
+
+function updateUI(){
+  $('coinVal').textContent='∞';
+  $('undoBtn').disabled=!past.length;$('redoBtn').disabled=!future.length;
+  const it=cur();
+  $('rotBtn').disabled=$('delBtn').disabled=!it;
+  $('sel').innerHTML=it
+    ?`<p><b>${CAT[it.type].n}</b></p><p class="muted">Facing ${it.rot*90}° · selling gives back ${Math.floor(CAT[it.type].p/2)} ✿</p>`
+    :'<p class="muted">Tap a piece in the room to select it.</p>';
+  document.querySelectorAll('#wallSw .sw').forEach(b=>b.classList.toggle('active',b.dataset.c.toLowerCase()===state.room.wall.toLowerCase()));
+  document.querySelectorAll('#floorSw .sw').forEach(b=>b.classList.toggle('active',b.dataset.c.toLowerCase()===state.room.floor.toLowerCase()));
+  $('tabs').innerHTML='';
+  CATS.forEach(c=>{const b=document.createElement('button');b.textContent=c;
+    b.className=c===tab?'on':'ghost';b.onclick=()=>{tab=c;updateUI();};$('tabs').appendChild(b);});
+  $('shop').innerHTML='';
+  Object.entries(CAT).filter(([,c])=>tab==='All'||c.c===tab).forEach(([k,c])=>{
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML=`<b>${c.n}</b><span class="muted">${c.c}</span><button class="buy">Place · ${c.p} ✿</button>`;
+    const btn=d.querySelector('button');btn.disabled=state.coins<c.p;btn.onclick=()=>buy(k);
+    $('shop').appendChild(d);});
+}
+let tt;function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1800);}
+
+$('rotBtn').onclick=rotateSel;$('delBtn').onclick=removeSel;
+$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;$('resetBtn').onclick=clearRoom;
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  const k=e.key.toLowerCase(),m=e.ctrlKey||e.metaKey;
+  if(m&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();}
+  else if(m&&k==='y'){e.preventDefault();redo();}
+  else if(!m&&k==='r')rotateSel();
+  else if(k==='delete'||k==='backspace'){e.preventDefault();removeSel();}
+  else if(k==='escape')select(null);
+});
+
+/* ---------- Character Studio ---------- */
+const W='#FFFFFF',K='#2B1D2E';
+const clone=o=>JSON.parse(JSON.stringify(o));
+const SW=['#FFE3D3','#F9D2B6','#E8B894','#C98E68','#F7B8D0','#E6D9FA','#CDEBDD','#FCE5A9','#FFFFFF','#D77CAB','#9FC5E8','#3E2C3A','#8E3F6E','#5B3E7A','#F4A0C2'];
+const CH_DEFAULT={name:'Poppy',headSize:1,bodyHeight:1,limbLength:1,skin:'#F9D2B6',tail:'none',tailColor:'#FFFFFF',
+  eyes:'sparkle',eyeSize:1,eyeSpacing:.3,eyeColor:'#5B3E7A',lashes:true,brows:'soft',browColor:'#6B4A5C',
+  nose:'dot',mouth:'smile',lipColor:'#8E3F6E',blush:true,blushColor:'#F4A0C2',ears:'none',earColor:'#F4B6D2',
+  hair:'bob',bangs:'full',hairColor:'#F4B6D2',top:'dress',sleeves:'short',topColor:'#F7B8D0',
+  bottom:'none',bottomColor:'#E6D9FA',shoes:'boots',shoeColor:'#D77CAB',accs:['bow'],accColor:'#D77CAB'};
+const GROUPS=[
+ {name:'Body',items:[
+  {t:'slider',k:'headSize',l:'Head size',min:.8,max:1.25,s:.01},
+  {t:'slider',k:'bodyHeight',l:'Body height',min:.8,max:1.25,s:.01},
+  {t:'slider',k:'limbLength',l:'Arm & leg length',min:.7,max:1.4,s:.01},
+  {t:'color',k:'skin',l:'Skin tone'},
+  {t:'chip',k:'tail',l:'Tail',v:[['none','None'],['bunny','Bunny'],['cat','Cat']]},
+  {t:'color',k:'tailColor',l:'Tail colour'}]},
+ {name:'Face',items:[
+  {t:'chip',k:'eyes',l:'Eye style',v:[['round','Round'],['sparkle','Sparkle'],['sleepy','Sleepy'],['happy','Happy']]},
+  {t:'slider',k:'eyeSize',l:'Eye size',min:.6,max:1.5,s:.01},
+  {t:'slider',k:'eyeSpacing',l:'Eye spacing',min:.18,max:.42,s:.01},
+  {t:'color',k:'eyeColor',l:'Eye colour'},
+  {t:'chip',k:'lashes',l:'Eyelashes',v:[[true,'On'],[false,'Off']]},
+  {t:'chip',k:'brows',l:'Eyebrows',v:[['none','None'],['soft','Soft'],['flat','Flat']]},
+  {t:'color',k:'browColor',l:'Brow colour'},
+  {t:'chip',k:'nose',l:'Nose',v:[['none','None'],['dot','Dot']]},
+  {t:'chip',k:'mouth',l:'Mouth',v:[['smile','Smile'],['open','Open'],['cat','Cat'],['neutral','Neutral']]},
+  {t:'color',k:'lipColor',l:'Mouth colour'},
+  {t:'chip',k:'blush',l:'Blush',v:[[true,'On'],[false,'Off']]},
+  {t:'color',k:'blushColor',l:'Blush colour'},
+  {t:'chip',k:'ears',l:'Ears',v:[['none','None'],['cat','Cat'],['bunny','Bunny'],['bear','Bear']]},
+  {t:'color',k:'earColor',l:'Ear colour'}]},
+ {name:'Hair',items:[
+  {t:'chip',k:'hair',l:'Hair style',v:[['short','Short'],['bob','Bob'],['long','Long'],['twin','Twin tails'],['bun','Bun'],['wavy','Wavy']]},
+  {t:'chip',k:'bangs',l:'Bangs',v:[['none','None'],['full','Full'],['side','Side']]},
+  {t:'color',k:'hairColor',l:'Hair colour'}]},
+ {name:'Outfit',items:[
+  {t:'chip',k:'top',l:'Top',v:[['none','None'],['tee','Tee'],['hoodie','Hoodie'],['jumper','Jumper'],['dress','Dress']]},
+  {t:'chip',k:'sleeves',l:'Sleeves',v:[['short','Short'],['long','Long']]},
+  {t:'color',k:'topColor',l:'Top colour'},
+  {t:'chip',k:'bottom',l:'Bottom',v:[['none','None'],['skirt','Skirt'],['shorts','Shorts'],['trousers','Trousers']]},
+  {t:'color',k:'bottomColor',l:'Bottom colour'},
+  {t:'chip',k:'shoes',l:'Shoes',v:[['none','None'],['trainers','Trainers'],['boots','Boots'],['slippers','Slippers']]},
+  {t:'color',k:'shoeColor',l:'Shoe colour'}]},
+ {name:'Extras',items:[
+  {t:'multi',k:'accs',l:'Accessories (pick any)',v:[['bow','Hair bow'],['beanie','Beanie'],['witch','Witch hat'],['glasses','Glasses'],['headphones','Headphones'],['wings','Wings'],['necklace','Necklace']]},
+  {t:'color',k:'accColor',l:'Accessory colour'}]}
+];
+
+let chEyes=[],chS=null,chC=null,chR=null,chAv=null,chRaf=0,chRO=null;
+let char=clone(CH_DEFAULT),tabIdx=0,slot=0;
+const looks=[null,null,null];
+const CH={th:.3,ph:1.25,r:6.8,t:new THREE.Vector3(0,1.5,0)};
+const pick=a=>a[Math.floor(Math.random()*a.length)][0];
+
+function buildHuman(g,c){
+  const S=c.skin,H=c.hairColor,E=c.eyeColor,T=c.topColor,B=c.bottomColor,SC=c.shoeColor,A=c.accColor,EC=c.earColor,TC=c.tailColor;
+  const es=c.eyeSize,hs=c.headSize,lg=c.limbLength,topY=1.45+(c.bodyHeight-1)*.5,acc=c.accs;
+  const hd=new THREE.Group();hd.position.set(0,topY+.75*hs,0);hd.scale.setScalar(hs);g.add(hd);
+  const ey=(r,col,x,y,z,sy=1)=>{const m=sp(hd,r,col,x,y,z);m.scale.y=sy;m.userData.sy=sy;chEyes.push(m);return m;};
+
+  // legs and shoes
+  for(const x of[-.28,.28]){
+    if(c.bottom==='trousers')cy(g,.13,.12,.62,B,x,.1,0);
+    else cy(g,.09,.09,.3*lg+.05,S,x,.05,0);
+    if(c.shoes==='boots')cy(g,.2,.22,.42,SC,x,0,0);
+    else if(c.shoes==='slippers')sp(g,.22,SC,x,.1,.1).scale.set(1.1,.45,1.4);
+    else if(c.shoes==='trainers')sp(g,.2,SC,x,.16,.1).scale.set(1,.6,1.35);
+  }
+  // bottoms
+  if(c.top!=='dress'){
+    if(c.bottom==='none')cy(g,.4,.38,.58,S,0,.28,0);
+    else if(c.bottom==='skirt')cy(g,.42,.6,.5,B,0,.35,0);
+    else if(c.bottom==='shorts')cy(g,.42,.44,.66,B,0,.2,0);
+    else if(c.bottom==='trousers')cy(g,.42,.42,.2,B,0,.68,0);
+  }else cy(g,.42,.62,.8,T,0,.25,0);
+  // torso and arms
+  cy(g,c.top==='none'?.38:.4,.4,topY-.85,c.top==='none'?S:T,0,.85,0);
+  const yA=(topY+.85)/2;
+  for(const x of[-.5,.5]){
+    if(c.sleeves==='long'&&c.top!=='none')part(g,new THREE.CylinderGeometry(.14,.12,.62*lg,16),T,x,yA,0);
+    else sp(g,.13,S,x,yA,0).scale.set(1,1.6*lg,1);
+  }
+  // tail
+  if(c.tail==='bunny')sp(g,.2,TC,0,.45,-.5);
+  if(c.tail==='cat')part(g,new THREE.CylinderGeometry(.06,.05,.8,10),TC,0,.5,-.5).rotation.x=-.9;
+  // body accessories
+  if(acc.includes('wings')){sp(g,.5,A,-.6,topY-.15,-.5).scale.set(.3,1.2,.5);sp(g,.5,A,.6,topY-.15,-.5).scale.set(.3,1.2,.5);}
+  if(acc.includes('necklace')){part(g,new THREE.TorusGeometry(.38,.035,8,24),A,0,topY+.05,0).rotation.x=Math.PI/2;sp(g,.08,A,0,topY-.09,.42);}
+
+  // ears
+  if(c.ears==='cat'){part(hd,new THREE.CylinderGeometry(0,.22,.4,16),EC,-.42,.75,0);part(hd,new THREE.CylinderGeometry(0,.22,.4,16),EC,.42,.75,0);}
+  if(c.ears==='bunny'){part(hd,new THREE.CylinderGeometry(.12,.12,.6,14),EC,-.3,.85,0);part(hd,new THREE.CylinderGeometry(.12,.12,.6,14),EC,.3,.85,0);}
+  if(c.ears==='bear'){sp(hd,.22,EC,-.58,.6,0);sp(hd,.22,EC,.58,.6,0);}
+  // head and hair
+  sp(hd,.8,S,0,0,0);
+  part(hd,new THREE.SphereGeometry(.86,28,18,0,Math.PI*2,0,Math.PI/2),H,0,.02,0);
+  if(c.bangs==='full')sp(hd,.44,H,0,.3,.5).scale.set(1.5,.45,.7);
+  if(c.bangs==='side')sp(hd,.4,H,.3,.36,.55).scale.set(1.5,.4,.7);
+  if(c.hair==='bob'){sp(hd,.32,H,-.72,-.1,.02).scale.set(.7,1.6,1.1);sp(hd,.32,H,.72,-.1,.02).scale.set(.7,1.6,1.1);}
+  if(c.hair==='long')cy(hd,.56,.5,1.3,H,0,-1.0,-.42);
+  if(c.hair==='twin'){sp(hd,.26,H,-.9,.2,0);sp(hd,.26,H,.9,.2,0);cy(hd,.14,.08,.6,H,-.92,-.6,0);cy(hd,.14,.08,.6,H,.92,-.6,0);}
+  if(c.hair==='bun')sp(hd,.3,H,0,.92,0);
+  if(c.hair==='wavy'){sp(hd,.3,H,-.7,-.5,0).scale.set(1,1.5,1);sp(hd,.3,H,.7,-.5,0).scale.set(1,1.5,1);}
+
+  // eyes, brows, nose, mouth, blush
+  for(const x of[-c.eyeSpacing,c.eyeSpacing]){
+    if(c.eyes==='round')ey(.12*es,K,x,0,.72);
+    else if(c.eyes==='sparkle'){ey(.14*es,E,x,0,.7);ey(.08*es,K,x,0,.8);sp(hd,.035*es,W,x+.035*es,.07*es,.86);}
+    else if(c.eyes==='sleepy')ey(.12*es,K,x,-.02,.72,.55);
+    else part(hd,new THREE.TorusGeometry(.1*es,.022,8,12,Math.PI),K,x,-.02,.74);
+    if(c.lashes&&c.eyes!=='happy')part(hd,new THREE.TorusGeometry(.15*es,.016,6,12,Math.PI),K,x,0,.74);
+    if(c.brows==='soft')part(hd,new THREE.TorusGeometry(.12*es,.02,6,12,Math.PI),c.browColor,x,.3,.74);
+    else if(c.brows==='flat')part(hd,new THREE.BoxGeometry(.2*es,.035,.04),c.browColor,x,.3,.76);
+  }
+  if(c.nose==='dot')sp(hd,.035,K,0,-.12,.8);
+  if(c.blush)for(const x of[-.5,.5])sp(hd,.13,c.blushColor,x,-.2,.6).scale.set(1.3,.7,.4);
+  const LC=c.lipColor;
+  if(c.mouth==='smile')part(hd,new THREE.TorusGeometry(.1,.022,8,16,Math.PI),LC,0,-.14,.78).rotation.z=Math.PI;
+  else if(c.mouth==='open')sp(hd,.09,LC,0,-.16,.78).scale.set(1,.8,.4);
+  else if(c.mouth==='cat')for(const x of[-.07,.07])part(hd,new THREE.TorusGeometry(.06,.02,8,12,Math.PI),LC,x,-.14,.78).rotation.z=Math.PI;
+  else part(hd,new THREE.BoxGeometry(.12,.02,.03),LC,0,-.16,.79);
+
+  // head accessories
+  if(acc.includes('bow')){sp(hd,.12,A,.5,.62,.6).scale.set(1.4,1,.6);sp(hd,.12,A,.78,.62,.6).scale.set(1.4,1,.6);sp(hd,.06,W,.64,.62,.66);}
+  if(acc.includes('beanie')){part(hd,new THREE.SphereGeometry(.9,24,14,0,Math.PI*2,0,Math.PI/2),A,0,.05,0);sp(hd,.12,W,0,.98,0);}
+  if(acc.includes('witch')){part(hd,new THREE.CylinderGeometry(1.05,1.05,.07,24),A,0,.6,0);part(hd,new THREE.CylinderGeometry(0,.55,.95,20),A,0,1.08,0);}
+  if(acc.includes('glasses')){for(const x of[-c.eyeSpacing,c.eyeSpacing])part(hd,new THREE.TorusGeometry(.15*es,.025,8,20),A,x,0,.8);part(hd,new THREE.BoxGeometry(.1,.025,.025),A,0,.02,.8);}
+  if(acc.includes('headphones')){part(hd,new THREE.TorusGeometry(.92,.07,8,24,Math.PI),A,0,0,0);sp(hd,.22,A,-.92,-.1,0);sp(hd,.22,A,.92,-.1,0);}
+}
+
+function chCamPlace(){
+  chC.position.set(CH.t.x+CH.r*Math.sin(CH.ph)*Math.sin(CH.th),CH.t.y+CH.r*Math.cos(CH.ph),CH.t.z+CH.r*Math.sin(CH.ph)*Math.cos(CH.th));
+  chC.lookAt(CH.t);
+}
+function rebuildAvatar(){
+  while(chAv.children.length)chAv.remove(chAv.children[0]);
+  chEyes=[];buildHuman(chAv,char);
+}
+function openStudio(){
+  $('chOv').hidden=false;
+  const host=$('chStage');
+  chR=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  chR.setPixelRatio(Math.min(devicePixelRatio,2));
+  chR.shadowMap.enabled=true;chR.shadowMap.type=THREE.PCFSoftShadowMap;
+  host.appendChild(chR.domElement);
+  chS=new THREE.Scene();chC=new THREE.PerspectiveCamera(35,1,.1,50);
+  chS.add(new THREE.HemisphereLight(0xffffff,0xFCE5EF,.6));
+  const key=new THREE.DirectionalLight(0xffffff,.7);key.position.set(3,6,5);key.castShadow=true;chS.add(key);
+  const pad=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.7,.15,48),mat('#FFF0F6'));
+  pad.position.y=-.08;pad.receiveShadow=true;chS.add(pad);
+  chAv=new THREE.Group();chS.add(chAv);
+  chRO=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;chR.setSize(w,h,false);chC.aspect=w/h;chC.updateProjectionMatrix();});
+  chRO.observe(host);
+  const el=chR.domElement;let dr=null;
+  el.addEventListener('pointerdown',e=>{dr={x:e.clientX};el.setPointerCapture(e.pointerId);});
+  el.addEventListener('pointermove',e=>{if(!dr)return;CH.th-=(e.clientX-dr.x)*.01;dr.x=e.clientX;chCamPlace();});
+  el.addEventListener('pointerup',()=>dr=null);el.addEventListener('pointercancel',()=>dr=null);
+  el.addEventListener('wheel',e=>{e.preventDefault();CH.r=clamp(CH.r+e.deltaY*.005,4,12);chCamPlace();},{passive:false});
+  chCamPlace();rebuildAvatar();renderTabs();renderOpts();renderSlots();
+  $('chName').value=char.name||'';
+  (function loop(){
+    chRaf=requestAnimationFrame(loop);
+    const t=performance.now();
+    chAv.position.y=Math.sin(t/700)*.03;
+    const blink=t%3200<130;
+    chEyes.forEach(m=>m.scale.y=m.userData.sy*(blink?.1:1));
+    chR.render(chS,chC);
+  })();
+}
+function closeStudio(){
+  cancelAnimationFrame(chRaf);
+  if(chRO)chRO.disconnect();
+  chR.dispose();chR.domElement.remove();chR=null;
+  $('chOv').hidden=true;
+}
+function renderTabs(){
+  const r=$('chTabs');r.innerHTML='';
+  GROUPS.forEach((g,i)=>{const b=document.createElement('button');b.textContent=g.name;
+    b.className=i===tabIdx?'on':'ghost';b.onclick=()=>{tabIdx=i;renderTabs();renderOpts();};r.appendChild(b);});
+}
+function renderOpts(){
+  const host=$('chOpts');host.innerHTML='';
+  GROUPS[tabIdx].items.forEach(it=>{
+    const wrap=document.createElement('div');wrap.className='opt';
+    if(it.t==='slider'){
+      wrap.innerHTML=`<label>${it.l} <span class="muted">${(+char[it.k]).toFixed(2)}</span></label><input type="range" min="${it.min}" max="${it.max}" step="${it.s}" value="${char[it.k]}">`;
+      const inp=wrap.querySelector('input'),val=wrap.querySelector('span');
+      inp.oninput=()=>{char[it.k]=+inp.value;val.textContent=(+inp.value).toFixed(2);rebuildAvatar();};
+    }else if(it.t==='color'){
+      wrap.innerHTML=`<label>${it.l}</label><div class="swrow"><input type="color" value="${char[it.k]}"></div>`;
+      const row=wrap.querySelector('.swrow'),inp=row.querySelector('input');
+      inp.oninput=()=>{char[it.k]=inp.value;rebuildAvatar();};
+      SW.forEach(c=>{const b=document.createElement('button');
+        b.className='sw'+(char[it.k].toLowerCase()===c.toLowerCase()?' active':'');
+        b.style.background=c;b.title=c;
+        b.onclick=()=>{char[it.k]=c;inp.value=c;renderOpts();rebuildAvatar();};
+        row.appendChild(b);});
+    }else if(it.t==='chip'){
+      wrap.innerHTML=`<label>${it.l}</label><div class="swrow"></div>`;
+      const row=wrap.querySelector('.swrow');
+      it.v.forEach(([v,n])=>{const b=document.createElement('button');
+        b.className=char[it.k]===v?'on':'ghost';b.textContent=n;
+        b.onclick=()=>{char[it.k]=v;refreshChar();};row.appendChild(b);});
+    }else if(it.t==='multi'){
+      wrap.innerHTML=`<label>${it.l}</label><div class="swrow"></div>`;
+      const row=wrap.querySelector('.swrow');
+      it.v.forEach(([v,n])=>{const on=char.accs.includes(v);const b=document.createElement('button');
+        b.className=on?'on':'ghost';b.textContent=(on?'✓ ':'')+n;
+        b.onclick=()=>{char.accs=on?char.accs.filter(x=>x!==v):[...char.accs,v];refreshChar();};row.appendChild(b);});
+    }
+    host.appendChild(wrap);
+  });
+}
+function refreshChar(){renderOpts();rebuildAvatar();$('chName').value=char.name||'';}
+function randomise(){
+  GROUPS.forEach(g=>g.items.forEach(it=>{
+    if(it.t==='slider')char[it.k]=+(it.min+Math.random()*(it.max-it.min)).toFixed(2);
+    else if(it.t==='color')char[it.k]=SW[Math.floor(Math.random()*SW.length)];
+    else if(it.t==='chip')char[it.k]=pick(it.v);
+    else if(it.t==='multi')char.accs=it.v.map(x=>x[0]).filter(()=>Math.random()<.25);
+  }));
+  refreshChar();
+}
+function renderSlots(){
+  const r=$('slots');r.innerHTML='';
+  looks.forEach((l,i)=>{
+    const b=document.createElement('button');
+    b.textContent=`Look ${i+1}${l?' ✓':''}`;b.className=i===slot?'on':'ghost';
+    b.onclick=()=>{slot=i;renderSlots();};r.appendChild(b);
+  });
+}
+$('chOpen').onclick=openStudio;
+$('chClose').onclick=closeStudio;
+$('rndBtn').onclick=randomise;
+$('rstBtn').onclick=()=>{char=clone(CH_DEFAULT);refreshChar();};
+$('chName').oninput=e=>{char.name=e.target.value;};
+$('slotSave').onclick=()=>{looks[slot]=clone(char);renderSlots();toast(`Saved to Look ${slot+1} ♡`);};
+$('slotWear').onclick=()=>{if(!looks[slot])return toast('That look is empty');char=clone(looks[slot]);refreshChar();toast(`Wearing Look ${slot+1} ♡`);};
+$('chSave').onclick=()=>{
+  const nm=(char.name||'my_character').replace(/[^\w ]+/g,'').trim().replace(/\s+/g,'_')||'my_character';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'Strawberry Pedals',version:2,character:char},null,2)],{type:'application/json'}));
+  a.download=nm+'.strawberrypedals-character.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast('Character saved ♡');
+};
+$('chLoad').onclick=()=>$('chFile').click();
+$('chFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());const src=d.character;const c=clone(CH_DEFAULT);
+    Object.keys(CH_DEFAULT).forEach(k=>{if(k in src&&typeof src[k]===typeof CH_DEFAULT[k])c[k]=src[k];});
+    if(!Array.isArray(c.accs))c.accs=[];
+    char=c;refreshChar();toast('Character loaded ♡');
+  }catch(_){toast('That file didn\u2019t open ♡');}
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('chOv').hidden)closeStudio();});
+
+/* ---------- Accounts & home ---------- */
+const mem={};
+const kv={
+  get(k){try{return localStorage.getItem(k)}catch(e){return k in mem?mem[k]:null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},
+  del(k){try{localStorage.removeItem(k)}catch(e){delete mem[k]}}
+};
+const loadUsers=()=>{try{return JSON.parse(kv.get('sp_users')||'{}')}catch(e){return {}}};
+const saveUsers=u=>kv.set('sp_users',JSON.stringify(u));
+const toHex=buf=>[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+const randHex=n=>toHex(crypto.getRandomValues(new Uint8Array(n)));
+async function hashPw(pw,salt){
+  const enc=new TextEncoder();
+  const key=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:100000,hash:'SHA-256'},key,256);
+  return toHex(bits);
+}
+function authErr(msg,ok){const m=$('authMsg');m.textContent=msg;m.className='authMsg '+(ok?'okMsg':'errMsg');}
+function authTab(mode){
+  const up=mode==='signup';
+  $('suForm').hidden=!up;$('liForm').hidden=up;
+  $('tabSu').className=up?'on':'ghost';$('tabLi').className=up?'ghost':'on';
+  authErr('');
+}
+function openAuth(mode){$('authOv').hidden=false;authTab(mode);}
+function closeAuth(){$('authOv').hidden=true;}
+function enterApp(name){
+  document.body.classList.add('in-app');
+  $('whoami').textContent='♡ '+name;
+  char.name=name;
+  closeAuth();window.scrollTo(0,0);
+}
+function showHome(){
+  if(!$('chOv').hidden)closeStudio();
+  document.body.classList.remove('in-app');
+  window.scrollTo(0,0);
+}
+async function doSignup(){
+  const u=$('suUser').value.trim(),em=$('suEmail').value.trim().toLowerCase(),p=$('suPass').value,p2=$('suPass2').value;
+  if(!/^[A-Za-z0-9_]{3,16}$/.test(u))return authErr('Usernames are 3\u201316 letters, numbers or underscores \u2661');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))return authErr('Please enter a valid email address');
+  if(p.length<8)return authErr('Your password needs at least 8 characters');
+  if(p!==p2)return authErr('Those passwords don\u2019t match yet');
+  if(!$('suAge').checked)return authErr('You need to be 13 or older to join');
+  const users=loadUsers();
+  if(users[u.toLowerCase()])return authErr('That username is already taken');
+  if(Object.values(users).some(x=>x.email===em))return authErr('That email already has an account');
+  try{
+    const salt=randHex(16),hash=await hashPw(p,salt);
+    users[u.toLowerCase()]={name:u,email:em,salt,hash,created:Date.now()};
+    saveUsers(users);kv.set('sp_session',u.toLowerCase());
+    enterApp(u);toast('Welcome to Strawberry Pedals \u2661');
+  }catch(err){authErr('Sign up needs a secure browser. Try Chrome, Edge or Safari.');}
+}
+async function doLogin(){
+  const id=$('liUser').value.trim().toLowerCase(),p=$('liPass').value;
+  const users=loadUsers();
+  const rec=users[id]||Object.values(users).find(x=>x.email===id);
+  if(!rec)return authErr('We couldn\u2019t find that account');
+  try{
+    const h=await hashPw(p,rec.salt);
+    if(h!==rec.hash)return authErr('Wrong password, try again');
+    kv.set('sp_session',rec.name.toLowerCase());
+    enterApp(rec.name);toast(`Welcome back, ${rec.name} \u2661`);
+  }catch(err){authErr('Log in needs a secure browser. Try Chrome, Edge or Safari.');}
+}
+$('hLogin').onclick=()=>openAuth('login');
+$('hSignup').onclick=$('heroSignup').onclick=()=>openAuth('signup');
+$('heroPlay').onclick=()=>{enterApp('Guest');toast('Welcome to the demo \u2661');};
+$('logout').onclick=()=>{kv.del('sp_session');showHome();toast('See you soon \u2661');};
+$('tabSu').onclick=$('goSignup').onclick=()=>authTab('signup');
+$('tabLi').onclick=$('goLogin').onclick=()=>authTab('login');
+$('authClose').onclick=closeAuth;
+$('suBtn').onclick=doSignup;$('liBtn').onclick=doLogin;
+document.querySelectorAll('#suForm input,#liForm input').forEach(i=>i.addEventListener('keydown',e=>{
+  if(e.key==='Enter')(i.closest('#suForm')?doSignup:doLogin)();}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('authOv').hidden)closeAuth();});
+(function boot(){
+  const s=kv.get('sp_session');const u=s&&loadUsers()[s];
+  if(u)enterApp(u.name);else showHome();
+})();
+
+/* ---------- Touch: pinch to zoom the room ---------- */
+const touchPts=new Map();let pinchD=0;
+cv.addEventListener('pointerdown',e=>{
+  touchPts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touchPts.size===2){drag=null;pinchD=0;}
+});
+cv.addEventListener('pointermove',e=>{
+  if(!touchPts.has(e.pointerId))return;
+  touchPts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touchPts.size===2){
+    const [a,b]=[...touchPts.values()];
+    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(pinchD)orbit.rT=clamp((orbit.rT??orbit.r)*(pinchD/d),7,22);
+    pinchD=d;
+  }
+});
+const endTouch=e=>{touchPts.delete(e.pointerId);if(touchPts.size<2)pinchD=0;};
+cv.addEventListener('pointerup',endTouch);
+cv.addEventListener('pointercancel',endTouch);
+
+/* ---------- Loop ---------- */
+(function loop(){
+  for(let i=pops.length-1;i>=0;i--){const p=pops[i];p.t=Math.min(1,p.t+.07);
+    p.g.scale.setScalar(Math.max(.01,1-Math.pow(1-p.t,3)));if(p.t>=1)pops.splice(i,1);}
+  if(orbit.rT!==undefined&&Math.abs(orbit.rT-orbit.r)>.001){orbit.r+=(orbit.rT-orbit.r)*.16;placeCam();}
+  if(ringT&&ring.visible)ring.position.lerp(ringT,.28);
+  if(ring.visible)ring.material.opacity=.6+.3*Math.sin(performance.now()/300);
+  renderer.render(scene,camera);requestAnimationFrame(loop);
+})();
+
+placeCam();rebuild();
+
+
+/* ---------- Installable mobile app (PWA) ---------- */
+(function setupInstallableApp(){
+  const installButton = document.getElementById('installApp');
+  let installPrompt = null;
+  const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (alreadyInstalled && installButton) installButton.hidden = true;
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    installPrompt = event;
+  });
+
+  if (installButton) installButton.addEventListener('click', async () => {
+    if (alreadyInstalled) return;
+    if (installPrompt) {
+      installPrompt.prompt();
+      try { await installPrompt.userChoice; } catch (_) {}
+      installPrompt = null;
+      return;
+    }
+    const isAppleMobile = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isAppleMobile) {
+      alert('To install Strawberry Pedals: open this page in Safari, tap the Share button, choose “Add to Home Screen”, then tap “Add”.');
+    } else {
+      alert('To install Strawberry Pedals: open your browser menu and choose “Install app” or “Add to Home screen”.');
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    if (installButton) installButton.hidden = true;
+    installPrompt = null;
+  });
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(error => {
+        console.warn('Strawberry Pedals offline support could not be registered:', error);
+      });
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
